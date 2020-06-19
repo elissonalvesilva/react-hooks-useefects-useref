@@ -1,68 +1,211 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# React Hooks (useEffect, useState, useRef)
 
-## Available Scripts
+## setup
+ - build dependences
+> yarn 
 
-In the project directory, you can run:
+ - run
+> yarn start
 
-### `yarn start`
+## Examples
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+1 - Simple useEffect
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+****
+* Simple using effect using button and counter
 
-### `yarn test`
+```javascript
+import React, { useEffect, useState } from 'react';
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `yarn build`
+function EffectExamples() {
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+  const [ counter, setCounter ] = useState(0);
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+  useEffect(() => {
+    document.title = counter;
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+    // component will unmount
+    return () => document.title = 'React App';
 
-### `yarn eject`
+  }, [counter]);
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+  return (
+      <>
+        <h1>{ counter }</h1>
+        <button onClick={() => setCounter(counter + 1)}>Add</button>
+      </>
+  );
+}
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+export default EffectExamples;
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+2 - Using Effect with axios async
 
-## Learn More
+****
+* useEffect with axios to get repositories from github
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```javascript
+import React, { useState, useEffect } from 'react';
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+function EffectWithAxios() {
+  
+  const [list, setList] = useState([]);
 
-### Code Splitting
+  useEffect(() => {
+    const getData = async () => {
+      const response = await fetch('https://api.github.com/users/ElissonAlvesSilva/repos');
+      const data = await response.json();
+      
+      setList(data);
+    }
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+    getData();
+  })
+ 
+  return (
+    <>
+      <ul>
+        {
+          list.map((item, key) => (
+            <li key={key}> {item.name}</li>
+          ))
+        }
+      </ul>
+    </>
+  );
+}
+export default EffectWithAxios;
 
-### Analyzing the Bundle Size
+```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+3 - using UseEffect to Filter by button and when user on change the input value
 
-### Making a Progressive Web App
+****
+* Filter value by input (when user on change value the function filter post list the was getting from api)
+* Get post by id when user change the input value using a number id
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+```javascript
+import React, { useState, useEffect, useRef } from 'react';
 
-### Advanced Configuration
+function EffectWithFilter() {
+  
+  const inputEl = useRef(null);
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+  const [list, setList] = useState([]);
+  const [oldList, setOldList] = useState([]);
+  useEffect(() => {
+    const getData = async () => {
+      const response = await fetch('https://my-json-server.typicode.com/typicode/demo/posts');
+      const data = await response.json();
+      setList(data);
+      setOldList(data);
+    }
 
-### Deployment
+    getData();
+  }, []);
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+  function handleClick(){
+    const value = inputEl.current.value;
+    const getDataFiltered = async (value) => {
+      const response = await fetch(`https://my-json-server.typicode.com/typicode/demo/posts/${value}`);
+      const data = await response.json();
+      setList([data]);
+    }
 
-### `yarn build` fails to minify
+    getDataFiltered(value);
+  };
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+  function handleChange() {
+    const { value } = inputEl.current;
+
+    const data = oldList.filter(({title}) => {
+      return title.toLowerCase().includes(value.toLowerCase())  ;
+    });
+        
+    setList(data) ;
+    if(value === '' || !data) setList(oldList); 
+  }
+
+ 
+  return (
+    <>
+      <ul>
+        {
+          list.map((item, key) => (
+            <li key={key}> {item.title}</li>
+          ))
+        }
+      </ul>
+      <input type="text" ref={inputEl} onChange={handleChange}/>
+      <button onClick={handleClick}>Find Id</button>
+    </>
+  );
+}
+export default EffectWithFilter;
+
+```
+
+4 - Using Effect with filter by input and setting the dependences
+
+****
+* when user set a value in input and press a button to filter, the function handleClick set a value filter value and after using _useEffect_ we filter the list that was getting from api
+
+```javascript
+import React, { useState, useEffect, useRef } from 'react';
+
+
+function EffectWithDependences() {
+  const inputEl = useRef(null);
+
+  const [list, setList] = useState([]);
+  const [oldList, setOldList] = useState([]);
+  const [filter, setFilter] = useState("");
+
+
+  useEffect(() => {
+    const getData = async () => {
+      const response = await fetch('https://my-json-server.typicode.com/typicode/demo/posts');
+      const data = await response.json();
+      setList(data);
+      setOldList(data);
+    }
+
+    getData();
+  }, []);
+
+
+  useEffect(() => {
+    const data = oldList.filter(({title}) => {
+      return title.toLowerCase().includes(filter.toLowerCase());
+    });
+    setList(data);
+  }, [filter, oldList]);
+
+  function handleClick(){
+    const value = inputEl.current.value;
+    setFilter(value);
+  };
+
+  
+  
+  return (
+    <>
+      <ul>
+        {
+          list.map((item, key) => (
+            <li key={key}> {item.title}</li>
+          ))
+        }
+      </ul>
+      <input type="text" ref={inputEl}/>
+      <button onClick={handleClick}>Find Id</button>
+    </>
+  );
+}
+
+export default EffectWithDependences;
+
+```

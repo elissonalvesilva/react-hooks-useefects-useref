@@ -1,24 +1,27 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
 
+import EffectExample from './EffectExample';
+import EffectWithAxios from './EffectWithAxios';
+import EffectWithFilter from './EffectWithFilter';
+import EffectWithDependences from './EffectWithDependences';
+
+
 function App() {
+
+  const [visible, setVisible] = useState(true); 
+
+  setTimeout(() => setVisible(false), 5000);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {
+        visible && <EffectExample />
+      }
+      <EffectWithAxios />
+      <hr/> 
+      <EffectWithFilter />
+      <EffectWithDependences />
     </div>
   );
 }
